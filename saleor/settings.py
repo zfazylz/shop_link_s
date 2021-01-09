@@ -208,6 +208,7 @@ INSTALLED_APPS = [
     "saleor.webhook",
     "saleor.wishlist",
     "saleor.app",
+    "saleor.sms",
     # External apps
     "versatileimagefield",
     "django_measurement",
@@ -538,3 +539,6 @@ JWT_TTL_REFRESH = timedelta(seconds=parse(os.environ.get("JWT_TTL_REFRESH", "30 
 JWT_TTL_REQUEST_EMAIL_CHANGE = timedelta(
     seconds=parse(os.environ.get("JWT_TTL_REQUEST_EMAIL_CHANGE", "1 hour")),
 )
+
+DEFAULT_SMS_CODE = "111111"
+SMS_CODE_EXPIRE = 600
