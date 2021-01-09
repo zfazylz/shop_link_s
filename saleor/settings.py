@@ -2,6 +2,7 @@ import ast
 import os.path
 import warnings
 from datetime import timedelta
+from dotenv import load_dotenv
 
 import dj_database_url
 import dj_email_url
@@ -15,6 +16,8 @@ from django.core.management.utils import get_random_secret_key
 from pytimeparse import parse
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
+
+load_dotenv()
 
 
 def get_list(text):
