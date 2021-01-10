@@ -1,10 +1,10 @@
 import graphene
 import jwt
 from django.conf import settings
-from django.contrib.auth import password_validation
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 
+from .jwt import TokenMutationMixin
 from ....account import emails, events as account_events, models, utils
 from ....account.error_codes import AccountErrorCode
 from ....checkout import AddressType
@@ -24,28 +24,19 @@ from .base import (
     BaseAddressUpdate,
     BaseCustomerCreate,
 )
+from ....sms.utils import verify_sms_code
 
 
-class AccountRegisterInput(graphene.InputObjectType):
-    email = graphene.String(description="The email address of the user.", required=True)
-    password = graphene.String(description="Password.", required=True)
-    redirect_url = graphene.String(
-        description=(
-            "Base of frontend URL that will be needed to create confirmation URL."
-        ),
-        required=False,
-    )
+class AccountRegisterViaPhoneNumberInput(graphene.InputObjectType):
+    phone = graphene.String(description="The phone number of the user.", required=True)
+    sms_code = graphene.String(description="The SMS code to verify", required=True)
 
 
-class AccountRegister(ModelMutation):
+class AccountRegister(ModelMutation, TokenMutationMixin):
     class Arguments:
-        input = AccountRegisterInput(
+        input = AccountRegisterViaPhoneNumberInput(
             description="Fields required to create a user.", required=True
         )
-
-    requires_confirmation = graphene.Boolean(
-        description="Informs whether users need to confirm their email address."
-    )
 
     class Meta:
         description = "Register a new user."
@@ -62,48 +53,30 @@ class AccountRegister(ModelMutation):
 
     @classmethod
     def clean_input(cls, info, instance, data, input_cls=None):
-        if not settings.ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL:
-            return super().clean_input(info, instance, data, input_cls=None)
-        elif not data.get("redirect_url"):
-            raise ValidationError(
-                {
-                    "redirect_url": ValidationError(
-                        "This field is required.", code=AccountErrorCode.REQUIRED
-                    )
-                }
-            )
-
-        try:
-            validate_storefront_url(data["redirect_url"])
-        except ValidationError as error:
-            raise ValidationError(
-                {
-                    "redirect_url": ValidationError(
-                        error.message, code=AccountErrorCode.INVALID
-                    )
-                }
-            )
-
-        password = data["password"]
-        try:
-            password_validation.validate_password(password, instance)
-        except ValidationError as error:
-            raise ValidationError({"password": error})
-
+        is_sms_code_valid = verify_sms_code(
+            data["phone"], data["sms_code"]
+        )
+        if not is_sms_code_valid:
+            raise ValidationError({"sms_code": "SMS code is not valid"})
         return super().clean_input(info, instance, data, input_cls=None)
 
     @classmethod
     def save(cls, info, user, cleaned_input):
-        password = cleaned_input["password"]
-        user.set_password(password)
-        if settings.ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL:
-            user.is_active = False
-            user.save()
-            emails.send_account_confirmation_email(user, cleaned_input["redirect_url"])
-        else:
-            user.save()
+        user.set_unusable_password()
+        user.save()
         account_events.customer_account_created_event(user=user)
         info.context.plugins.customer_created(customer=user)
+
+    @classmethod
+    def success_response(cls, instance):
+        access_token = cls.get_access_token(instance)
+        csrf_token = cls.get_csrf_token()
+        refresh_token = cls.get_refresh_token(instance, csrf_token)
+        return cls(
+            token=access_token,
+            refresh_token=refresh_token,
+            csrf_token=csrf_token,
+        )
 
 
 class AccountInput(graphene.InputObjectType):

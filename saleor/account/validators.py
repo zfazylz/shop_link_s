@@ -16,3 +16,16 @@ def validate_possible_number(phone, country=None):
             "The phone number entered is not valid.", code=AccountErrorCode.INVALID
         )
     return phone_number
+
+
+def validate_phone_number_as_field(phone, country=None, to_field='phone'):
+    try:
+        validate_possible_number(phone, country)
+    except ValidationError as exc:
+        raise ValidationError(
+            {
+                "to_field": ValidationError(
+                    f"'{phone}' is not a valid phone number.", code=exc.code
+                )
+            }
+        ) from exc

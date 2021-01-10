@@ -13,6 +13,7 @@ from graphene.types.generic import GenericScalar
 
 from ....account import models
 from ....account.error_codes import AccountErrorCode
+from ....account.validators import validate_phone_number_as_field
 from ....core.jwt import (
     JWT_REFRESH_TOKEN_COOKIE_NAME,
     JWT_REFRESH_TYPE,
@@ -26,6 +27,7 @@ from ....core.permissions import get_permissions_from_names
 from ...core.mutations import BaseMutation
 from ...core.types.common import AccountError
 from ..types import User
+from ....sms.utils import verify_sms_code
 
 
 def get_payload(token):
@@ -61,18 +63,7 @@ def get_user(payload):
     return user
 
 
-class CreateToken(BaseMutation):
-    """Mutation that authenticates a user and returns token and user data."""
-
-    class Arguments:
-        email = graphene.String(required=True, description="Email of a user.")
-        password = graphene.String(required=True, description="Password of a user.")
-
-    class Meta:
-        description = "Create JWT token."
-        error_type_class = AccountError
-        error_type_field = "account_errors"
-
+class TokenMutationMixin:
     token = graphene.String(description="JWT token, required to authenticate.")
     refresh_token = graphene.String(
         description="JWT refresh token, required to re-generate access token."
@@ -80,23 +71,61 @@ class CreateToken(BaseMutation):
     csrf_token = graphene.String(
         description="CSRF token required to re-generate access token."
     )
+
+    @classmethod
+    def get_access_token(cls, user):
+        return create_access_token(user)
+
+    @classmethod
+    def get_csrf_token(cls):
+        return _get_new_csrf_token()
+
+    @classmethod
+    def get_refresh_token(cls, user, csrf_token):
+        return create_refresh_token(user, {"csrfToken": csrf_token})
+
+
+class CreateToken(BaseMutation, TokenMutationMixin):
+    """Mutation that authenticates a user and returns token and user data."""
+
+    class Arguments:
+        phone = graphene.String(required=True, description="Phone number of a user.")
+        sms_code = graphene.String(required=True, description="SMS code.")
+
+    class Meta:
+        description = "Create JWT token."
+        error_type_class = AccountError
+        error_type_field = "account_errors"
+
     user = graphene.Field(User, description="A user instance.")
 
     @classmethod
-    def _retrieve_user_from_credentials(cls, email, password) -> Optional[models.User]:
-        user = models.User.objects.filter(email=email, is_active=True).first()
-        if user and user.check_password(password):
-            return user
-        return None
+    def _get_user(cls, phone) -> Optional[models.User]:
+        return models.User.objects.filter(phone=phone, is_active=True).first()
+
+    @classmethod
+    def _verify_sms_code(cls, phone, sms_code):
+        return verify_sms_code(phone, sms_code)
 
     @classmethod
     def get_user(cls, _info, data):
-        user = cls._retrieve_user_from_credentials(data["email"], data["password"])
+        phone = data["phone"]
+        validate_phone_number_as_field(phone)
+        user = cls._get_user(phone)
         if not user:
             raise ValidationError(
                 {
-                    "email": ValidationError(
-                        "Please, enter valid credentials",
+                    "phone": ValidationError(
+                        "Phone number not found",
+                        code=AccountErrorCode.NOT_FOUND.value,
+                    )
+                }
+            )
+        if not cls._verify_sms_code(data["phone"], data["sms_code"]):
+            raise ValidationError(
+                {
+                    "sms_code": ValidationError(
+                        "Please, enter valid SMS code",
                         code=AccountErrorCode.INVALID_CREDENTIALS.value,
                     )
                 }
@@ -106,9 +135,9 @@ class CreateToken(BaseMutation):
     @classmethod
     def perform_mutation(cls, root, info, **data):
         user = cls.get_user(info, data)
-        access_token = create_access_token(user)
-        csrf_token = _get_new_csrf_token()
-        refresh_token = create_refresh_token(user, {"csrfToken": csrf_token})
+        access_token = cls.get_access_token(user)
+        csrf_token = cls.get_csrf_token()
+        refresh_token = cls.get_refresh_token(user, csrf_token)
         info.context.refresh_token = refresh_token
         info.context._cached_user = user
         user.last_login = timezone.now()
