@@ -17,6 +17,7 @@ from .plugins.schema import PluginsMutations, PluginsQueries
 from .product.schema import ProductMutations, ProductQueries
 from .shipping.schema import ShippingMutations, ShippingQueries
 from .shop.schema import ShopMutations, ShopQueries
+from .sms.schema import SMSMutations
 from .translations.schema import TranslationQueries
 from .warehouse.schema import StockQueries, WarehouseMutations, WarehouseQueries
 from .webhook.schema import WebhookMutations, WebhookQueries
@@ -65,6 +66,7 @@ class Mutation(
     ShopMutations,
     WarehouseMutations,
     WebhookMutations,
+    SMSMutations,
 ):
     pass
 

@@ -1,10 +1,6 @@
 from saleor.sms.models import SMSCode
 
 
-def send_sms_code(phone: str):
-    SMSCode.objects.create(phone)
-
-
 def verify_sms_code(phone: str, code: str):
     """
     One time sms code verification

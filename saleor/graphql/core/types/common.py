@@ -228,6 +228,10 @@ class TranslationError(Error):
     code = TranslationErrorCode(description="The error code.", required=True)
 
 
+class SMSError(Error):
+    code = TranslationErrorCode(description="The error code.", required=True)
+
+
 class SeoInput(graphene.InputObjectType):
     title = graphene.String(description="SEO title.")
     description = graphene.String(description="SEO description.")
