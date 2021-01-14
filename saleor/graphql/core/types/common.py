@@ -28,6 +28,7 @@ from ..enums import (
     WebhookErrorCode,
     WeightUnitsEnum,
     WishlistErrorCode,
+    MerchantErrorCode,
 )
 from .money import VAT
 
@@ -314,3 +315,7 @@ class Job(graphene.Interface):
             # <DjangoModel>: <GrapheneType>
         }
         return MODEL_TO_TYPE_MAP.get(type(instance))
+
+
+class MerchantError(Error):
+    code = MerchantErrorCode(description="The error code.", required=True)

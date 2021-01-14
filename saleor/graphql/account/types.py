@@ -245,6 +245,7 @@ class User(CountableDjangoObjectType):
             "last_login",
             "last_name",
             "note",
+            "merchant",
         ]
 
     @staticmethod
