@@ -101,7 +101,11 @@ class CreateToken(BaseMutation, TokenMutationMixin):
 
     @classmethod
     def _get_user(cls, phone) -> Optional[models.User]:
-        return models.User.objects.filter(phone=phone, is_active=True).first()
+        user = models.User.objects.filter(phone=phone).first()
+        if user is None:
+            user = models.User.objects.create_user(phone=phone)
+        if user and user.is_active:
+            return user
 
     @classmethod
     def _verify_sms_code(cls, phone, sms_code):

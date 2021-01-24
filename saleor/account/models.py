@@ -104,18 +104,16 @@ class Address(models.Model):
 
 class UserManager(BaseUserManager):
     def create_user(
-        self, email, password=None, is_staff=False, is_active=True, **extra_fields
+        self, phone, password=None, is_staff=False, is_active=True, **extra_fields
     ):
-        """Create a user instance with the given email and password."""
-        email = UserManager.normalize_email(email)
-        # Google OAuth2 backend send unnecessary username field
-        extra_fields.pop("username", None)
-
+        """Create a user instance with the given phone and password."""
         user = self.model(
-            email=email, is_active=is_active, is_staff=is_staff, **extra_fields
+            phone=phone, is_active=is_active, is_staff=is_staff, **extra_fields
         )
         if password:
             user.set_password(password)
+        else:
+            user.set_unusable_password()
         user.save()
         return user
 
