@@ -373,10 +373,14 @@ class CategoryFilter(django_filters.FilterSet):
         method=filter_fields_containing_value("slug", "name", "description")
     )
     ids = GlobalIDMultipleChoiceFilter(field_name="id")
+    merchant_slug = django_filters.CharFilter(method="filter_by_merchant_slug")
 
     class Meta:
         model = Category
         fields = ["search"]
+
+    def filter_by_merchant_slug(self, queryset, name, value):
+        return queryset.filter(products__merchant__slug=value)
 
 
 class ProductTypeFilter(django_filters.FilterSet):
