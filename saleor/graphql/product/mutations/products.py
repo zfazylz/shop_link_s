@@ -842,6 +842,8 @@ class ProductCreate(ModelMutation):
     def clean_input(cls, info, instance, data):
         cleaned_input = super().clean_input(info, instance, data)
 
+        instance.merchant = info.context.user.merchant
+
         weight = cleaned_input.get("weight")
         if weight and weight.value < 0:
             raise ValidationError(
@@ -1232,6 +1234,8 @@ class ProductVariantCreate(ModelMutation):
         cls, info, instance: models.ProductVariant, data: dict, input_cls=None
     ):
         cleaned_input = super().clean_input(info, instance, data)
+
+        instance.merchant = info.context.user.merchant
 
         weight = cleaned_input.get("weight")
         if weight and weight.value < 0:

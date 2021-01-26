@@ -125,3 +125,15 @@ class Job(models.Model):
 
     class Meta:
         abstract = True
+
+
+class MerchantRelatedQuerySetMixin:
+    def for_merchant(self, merchant):
+        return self.filter(merchant=merchant)
+
+
+class MerchantRelatedModel(models.Model):
+    merchant = models.ForeignKey('merchant.Merchant', on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
