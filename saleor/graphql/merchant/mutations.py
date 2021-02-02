@@ -22,14 +22,10 @@ class MerchantCreate(ModelMutation):
 
     class Meta:
         description = "Create new merchant"
-        exclude = ["owner"]
+        exclude = ("owner",)
         model = models.Merchant
         error_type_class = MerchantError
         error_type_field = "merchant_errors"
-
-    @classmethod
-    def perform_mutation(cls, root, info, **data):
-        return super().perform_mutation(root, info, **data)
 
     @classmethod
     def clean_input(cls, info, instance, data, input_cls=None):
