@@ -327,6 +327,7 @@ class ProductFilter(django_filters.FilterSet):
     stocks = ObjectTypeFilter(input_class=ProductStockFilterInput, method=filter_stocks)
     search = django_filters.CharFilter(method=filter_search)
     ids = GlobalIDMultipleChoiceFilter(field_name="id")
+    merchant_slug = django_filters.CharFilter(method="filter_by_merchant_slug")
 
     class Meta:
         model = Product
@@ -340,7 +341,11 @@ class ProductFilter(django_filters.FilterSet):
             "product_type",
             "stocks",
             "search",
+            "merchant",
         ]
+
+    def filter_by_merchant_slug(self, queryset, _, value):
+        return queryset.filter(merchant__slug=value)
 
 
 class ProductVariantFilter(django_filters.FilterSet):
@@ -348,10 +353,14 @@ class ProductVariantFilter(django_filters.FilterSet):
         method=filter_fields_containing_value("name", "product__name", "sku")
     )
     sku = ListObjectTypeFilter(input_class=graphene.String, method=filter_sku_list)
+    merchant_slug = django_filters.CharFilter(method="filter_by_merchant_slug")
 
     class Meta:
         model = ProductVariant
-        fields = ["search", "sku"]
+        fields = ["search", "sku", "merchant_slug"]
+
+    def filter_by_merchant_slug(self, queryset, _, value):
+        return queryset.filter(product__merchant__slug=value)
 
 
 class CollectionFilter(django_filters.FilterSet):
@@ -379,7 +388,7 @@ class CategoryFilter(django_filters.FilterSet):
         model = Category
         fields = ["search"]
 
-    def filter_by_merchant_slug(self, queryset, name, value):
+    def filter_by_merchant_slug(self, queryset, _, value):
         return queryset.filter(products__merchant__slug=value)
 
 
