@@ -164,6 +164,7 @@ if not SECRET_KEY and DEBUG:
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "saleor.core.middleware.request_time",
     "saleor.core.middleware.discounts",
@@ -211,6 +212,7 @@ INSTALLED_APPS = [
     "saleor.sms",
     "saleor.merchant",
     # External apps
+    "corsheaders",
     "versatileimagefield",
     "django_measurement",
     "django_prices",
@@ -543,3 +545,5 @@ JWT_TTL_REQUEST_EMAIL_CHANGE = timedelta(
 
 DEFAULT_SMS_CODE = "111111"
 SMS_CODE_EXPIRE = 600
+
+CORS_ALLOW_ALL_ORIGINS = True
