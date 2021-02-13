@@ -9,7 +9,7 @@ from .discount.schema import DiscountMutations, DiscountQueries
 from .giftcard.schema import GiftCardMutations, GiftCardQueries
 from .invoice.schema import InvoiceMutations
 from .menu.schema import MenuMutations, MenuQueries
-from .merchant.schema import MerchantMutations
+from .merchant.schema import MerchantMutations, MerchantQueries
 from .meta.schema import MetaMutations
 from .order.schema import OrderMutations, OrderQueries
 from .page.schema import PageMutations, PageQueries
@@ -34,6 +34,7 @@ class Query(
     PluginsQueries,
     GiftCardQueries,
     MenuQueries,
+    MerchantQueries,
     OrderQueries,
     PageQueries,
     PaymentQueries,
