@@ -38,7 +38,7 @@ def jwt_user_payload(
     payload.update(
         {
             "token": user.jwt_token_key,
-            "email": user.email,
+            "phone": str(user.phone),
             "type": token_type,
             "user_id": graphene.Node.to_global_id("User", user.id),
             "is_staff": user.is_staff,
@@ -97,7 +97,7 @@ def get_token_from_request(request: WSGIRequest) -> Optional[str]:
 
 
 def get_user_from_payload(payload: Dict[str, Any]) -> Optional[User]:
-    user = User.objects.filter(email=payload["email"], is_active=True).first()
+    user = User.objects.filter(phone=payload["phone"], is_active=True).first()
     user_jwt_token = payload.get("token")
     if not user_jwt_token or not user:
         raise jwt.InvalidTokenError(

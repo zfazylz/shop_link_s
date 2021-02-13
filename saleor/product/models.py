@@ -24,6 +24,8 @@ from ..core.models import (
     PublishableModel,
     PublishedQuerySet,
     SortableModel,
+    MerchantRelatedQuerySetMixin,
+    MerchantRelatedModel,
 )
 from ..core.permissions import ProductPermissions, ProductTypePermissions
 from ..core.utils import build_absolute_uri
@@ -122,7 +124,7 @@ class ProductType(ModelWithMetadata):
         )
 
 
-class ProductsQueryset(PublishedQuerySet):
+class ProductsQueryset(PublishedQuerySet, MerchantRelatedQuerySetMixin):
     def published_with_variants(self):
         published = self.published()
         return published.filter(variants__isnull=False).distinct()
@@ -227,7 +229,12 @@ class ProductsQueryset(PublishedQuerySet):
         )
 
 
-class Product(SeoModel, ModelWithMetadata, PublishableModel):
+class Product(
+    SeoModel,
+    ModelWithMetadata,
+    PublishableModel,
+    MerchantRelatedModel,
+):
     product_type = models.ForeignKey(
         ProductType, related_name="products", on_delete=models.CASCADE
     )
@@ -346,7 +353,7 @@ class ProductTranslation(SeoModelTranslation):
         )
 
 
-class ProductVariantQueryset(models.QuerySet):
+class ProductVariantQueryset(models.QuerySet, MerchantRelatedQuerySetMixin):
     def annotate_quantities(self):
         return self.annotate(
             quantity=Coalesce(Sum("stocks__quantity"), 0),
@@ -388,7 +395,10 @@ class ProductVariantQueryset(models.QuerySet):
         return variants
 
 
-class ProductVariant(SortableModel, ModelWithMetadata):
+class ProductVariant(
+    SortableModel,
+    ModelWithMetadata,
+):
     sku = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, blank=True)
     currency = models.CharField(
