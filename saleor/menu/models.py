@@ -2,14 +2,14 @@ from django.db import models
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 
-from ..core.models import SortableModel
+from ..core.models import SortableModel, MerchantRelatedModel
 from ..core.permissions import MenuPermissions
 from ..core.utils.translations import TranslationProxy
 from ..page.models import Page
 from ..product.models import Category, Collection
 
 
-class Menu(models.Model):
+class Menu(MerchantRelatedModel):
     name = models.CharField(max_length=250)
     slug = models.SlugField(max_length=255, unique=True, allow_unicode=True)
 

@@ -26,10 +26,14 @@ def filter_menu_item_search(qs, _, value):
 class MenuFilter(django_filters.FilterSet):
     search = django_filters.CharFilter(method=filter_menu_search)
     slug = ListObjectTypeFilter(input_class=graphene.String, method=filter_menu_slug)
+    merchant_slug = django_filters.CharFilter(method="filter_by_merchant_slug")
 
     class Meta:
         model = Menu
         fields = ["search", "slug"]
+
+    def filter_by_merchant_slug(self, queryset, _, value):
+        return queryset.filter(merchant__slug=value)
 
 
 class MenuItemFilter(django_filters.FilterSet):
