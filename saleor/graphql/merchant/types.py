@@ -1,8 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from .resolvers import resolve_merchant_menu
 from ..menu.types import Menu
+from ...menu.utils import get_merchant_default_nav_menu
 from ...merchant import models
 
 
@@ -23,4 +23,4 @@ class Merchant(DjangoObjectType):
         ]
 
     def resolve_menu(self, info):
-        return resolve_merchant_menu(info)
+        return get_merchant_default_nav_menu(self)
