@@ -3,10 +3,11 @@ import graphene
 from .mutations import (
     MerchantCreate,
 )
-from .resolvers import resolve_merchant_by_slug
+from .resolvers import resolve_merchant_by_slug, resolve_merchant_menu
 from .types import Merchant
 from ..core.fields import FilterInputConnectionField
 from ..core.validators import validate_one_of_args_is_in_query
+from ..menu.types import Menu
 
 
 class MerchantQueries(graphene.ObjectType):

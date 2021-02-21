@@ -34,9 +34,11 @@ class SiteSettings(models.Model):
     site = models.OneToOneField(Site, related_name="settings", on_delete=models.CASCADE)
     header_text = models.CharField(max_length=200, blank=True)
     description = models.CharField(max_length=500, blank=True)
+    # TODO: remove it
     top_menu = models.ForeignKey(
         "menu.Menu", on_delete=models.SET_NULL, related_name="+", blank=True, null=True
     )
+    # TODO: remove it
     bottom_menu = models.ForeignKey(
         "menu.Menu", on_delete=models.SET_NULL, related_name="+", blank=True, null=True
     )
