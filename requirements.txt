@@ -18,6 +18,8 @@ chardet==3.0.4; python_version >= "2.7" and python_full_version < "3.0.0" or pyt
 click-didyoumean==0.0.3; python_version >= "3.6"
 click-repl==0.1.6; python_version >= "3.6"
 click==7.1.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+cloudinary==1.24.0
+django-cloudinary-storage==0.3.0
 colorama==0.4.3; python_version >= "2.7" and python_full_version < "3.0.0" and sys_platform == "win32" or sys_platform == "win32" and python_full_version >= "3.5.0"
 cssselect2==0.3.0; python_version >= "3.6"
 defusedxml==0.6.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"

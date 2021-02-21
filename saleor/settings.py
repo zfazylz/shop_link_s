@@ -375,6 +375,8 @@ GS_STORAGE_BUCKET_NAME = os.environ.get("GS_STORAGE_BUCKET_NAME")
 GS_MEDIA_BUCKET_NAME = os.environ.get("GS_MEDIA_BUCKET_NAME")
 GS_AUTO_CREATE_BUCKET = get_bool_from_env("GS_AUTO_CREATE_BUCKET", False)
 
+CLOUDINARY_URL = os.environ.get("CLOUDINARY_URL", None)
+
 # If GOOGLE_APPLICATION_CREDENTIALS is set there is no need to load OAuth token
 # See https://django-storages.readthedocs.io/en/latest/backends/gcloud.html
 if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
@@ -391,6 +393,13 @@ if AWS_MEDIA_BUCKET_NAME:
 elif GS_MEDIA_BUCKET_NAME:
     DEFAULT_FILE_STORAGE = "saleor.core.storages.GCSMediaStorage"
     THUMBNAIL_DEFAULT_STORAGE = DEFAULT_FILE_STORAGE
+elif CLOUDINARY_URL:
+    CLOUDINARY_STORAGE = {
+        "CLOUD_NAME": CLOUDINARY_URL,
+    }
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    THUMBNAIL_DEFAULT_STORAGE = DEFAULT_FILE_STORAGE
+    INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
 
 VERSATILEIMAGEFIELD_RENDITION_KEY_SETS = {
     "products": [
