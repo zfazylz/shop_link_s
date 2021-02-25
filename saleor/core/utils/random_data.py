@@ -38,6 +38,7 @@ from ...discount.models import Sale, Voucher
 from ...discount.utils import fetch_discounts
 from ...giftcard.models import GiftCard
 from ...menu.models import Menu
+from ...merchant.models import Merchant
 from ...order.models import Fulfillment, Order, OrderLine
 from ...order.utils import update_order_status
 from ...page.models import Page
@@ -209,6 +210,7 @@ def create_attributes_values(values_data):
 
 
 def create_products(products_data, placeholder_dir, create_images):
+    merchant_id = Merchant.objects.first().id
     for product in products_data:
         pk = product["pk"]
         # We are skipping products without images
@@ -219,6 +221,7 @@ def create_products(products_data, placeholder_dir, create_images):
         defaults["weight"] = get_weight(defaults["weight"])
         defaults["category_id"] = defaults.pop("category")
         defaults["product_type_id"] = defaults.pop("product_type")
+        defaults["merchant_id"] = merchant_id
 
         product, _ = Product.objects.update_or_create(pk=pk, defaults=defaults)
 
