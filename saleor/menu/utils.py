@@ -22,10 +22,10 @@ def update_default_menu(merchant: Merchant):
         product_count=Count('products', filter=Q(products__merchant=merchant))
     ).order_by('-product_count')
     total_categories = categories.count()
-    menu_item_length = _max_categories = 2
-    do_create_extra_menu_item = total_categories - _max_categories > 1
-    if not do_create_extra_menu_item:
-        menu_item_length = _max_categories + 1
+    menu_item_length = _max_categories = 3
+    do_create_extra_menu_item = total_categories > 3
+    if do_create_extra_menu_item:
+        menu_item_length = _max_categories - 1
     for category in categories[:menu_item_length]:
         MenuItem.objects.update_or_create(
             menu=menu,
@@ -40,6 +40,7 @@ def update_default_menu(merchant: Merchant):
             collection=None,
             page=None,
             parent=None,
+            url=f'/{merchant.slug}/',
             defaults={'name': 'Все категории'}
         )
         for category in categories:
