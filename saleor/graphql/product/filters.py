@@ -389,7 +389,8 @@ class CategoryFilter(django_filters.FilterSet):
         fields = ["search"]
 
     def filter_by_merchant_slug(self, queryset, _, value):
-        return queryset.filter(products__merchant__slug=value)
+        return queryset.with_visible_products_to_user(user=self.request.user)\
+            .filter(products__merchant__slug=value)
 
 
 class ProductTypeFilter(django_filters.FilterSet):
