@@ -394,10 +394,7 @@ elif GS_MEDIA_BUCKET_NAME:
     DEFAULT_FILE_STORAGE = "saleor.core.storages.GCSMediaStorage"
     THUMBNAIL_DEFAULT_STORAGE = DEFAULT_FILE_STORAGE
 elif CLOUDINARY_URL:
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": CLOUDINARY_URL,
-    }
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    DEFAULT_FILE_STORAGE = "saleor.core.storages.CustomMediaCloudinaryStorage"
     THUMBNAIL_DEFAULT_STORAGE = DEFAULT_FILE_STORAGE
     INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
 

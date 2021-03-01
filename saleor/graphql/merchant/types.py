@@ -31,4 +31,4 @@ class Merchant(DjangoObjectType):
 
     @staticmethod
     def resolve_featured_products(root: models.Merchant, info, **_kwargs):
-        return resolve_featured_products(root)
+        return resolve_featured_products(root, info)
