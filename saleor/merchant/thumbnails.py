@@ -9,6 +9,6 @@ def create_merchant_thumbnails(merchant_id: str):
     create_thumbnails(
         pk=merchant_id,
         model=Merchant,
-        size_set="thumbnail__510x510",
+        size_set="merchant_logos",
         image_attr="logo",
     )
