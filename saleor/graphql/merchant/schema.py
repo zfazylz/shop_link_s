@@ -1,7 +1,7 @@
 import graphene
 
 from .mutations import (
-    MerchantCreate,
+    MerchantCreate, MerchantUpdate,
 )
 from .resolvers import resolve_merchant_by_slug
 from .types import Merchant
@@ -31,3 +31,4 @@ class MerchantQueries(graphene.ObjectType):
 
 class MerchantMutations(graphene.ObjectType):
     merchant_create = MerchantCreate.Field()
+    merchant_update = MerchantUpdate.Field()

@@ -15,6 +15,13 @@ class MerchantInput(graphene.InputObjectType):
     logo = Upload(description="Logo")
 
 
+class MerchantUpdateInput(graphene.InputObjectType):
+    title = graphene.String(description="Title")
+    slug = graphene.String(description="Slug for url path")
+    description = graphene.String(description="Description")
+    logo = Upload(description="Logo")
+
+
 class MerchantCreate(ModelMutation):
     class Arguments:
         input = MerchantInput(
@@ -29,14 +36,32 @@ class MerchantCreate(ModelMutation):
         error_type_field = "merchant_errors"
 
     @classmethod
-    def clean_input(cls, info, instance, data, input_cls=None):
-        instance.owner = info.context.user
-        return super().clean_input(info, instance, data, input_cls)
-
-    @classmethod
     def get_type_for_model(cls):
         return Merchant
 
     @classmethod
     def post_save_action(cls, info, instance, cleaned_input):
-        create_merchant_thumbnails.delay(instance.pk)
+        if 'logo' in cleaned_input:
+            create_merchant_thumbnails.delay(instance.pk)
+
+    @classmethod
+    def get_instance(cls, info, **data):
+        """Get merchant or create mock merchant"""
+        instance = getattr(info.context.user, 'merchant', None)
+        if instance is None:
+            instance = cls._meta.model(owner=info.context.user)
+        return instance
+
+
+class MerchantUpdate(MerchantCreate):
+    class Arguments:
+        input = MerchantUpdateInput(
+            description="Fields required to update a merchant.", required=True
+        )
+
+    class Meta:
+        description = "Update request user merchant"
+        exclude = ("owner",)
+        model = models.Merchant
+        error_type_class = MerchantError
+        error_type_field = "merchant_errors"
