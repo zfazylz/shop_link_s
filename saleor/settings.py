@@ -409,6 +409,7 @@ VERSATILEIMAGEFIELD_RENDITION_KEY_SETS = {
     ],
     "background_images": [("header_image", "thumbnail__1080x440")],
     "user_avatars": [("default", "thumbnail__445x445")],
+    "merchant_logos": [("icon", "thumbnail__100x100")]
 }
 
 VERSATILEIMAGEFIELD_SETTINGS = {

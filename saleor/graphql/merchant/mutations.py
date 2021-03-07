@@ -5,13 +5,14 @@ from saleor.graphql.core.types.common import MerchantError
 from saleor.graphql.merchant.types import Merchant
 from saleor.merchant import models
 from saleor.graphql.core.mutations import ModelMutation
+from saleor.merchant.thumbnails import create_merchant_thumbnails
 
 
 class MerchantInput(graphene.InputObjectType):
     title = graphene.String(description="Title", required=True)
     slug = graphene.String(description="Slug for url path", required=True)
     description = graphene.String(description="Description", required=True)
-    logo = Upload(description="Logo", required=True)
+    logo = Upload(description="Logo")
 
 
 class MerchantCreate(ModelMutation):
@@ -35,3 +36,7 @@ class MerchantCreate(ModelMutation):
     @classmethod
     def get_type_for_model(cls):
         return Merchant
+
+    @classmethod
+    def post_save_action(cls, info, instance, cleaned_input):
+        create_merchant_thumbnails.delay(instance.pk)
