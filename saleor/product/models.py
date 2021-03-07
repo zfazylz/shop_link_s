@@ -5,7 +5,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib.postgres.aggregates import StringAgg
 from django.db import models
-from django.db.models import JSONField  # type: ignore
+from django.db.models import JSONField, Exists  # type: ignore
 from django.db.models import Case, Count, F, FilteredRelation, Q, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.urls import reverse
@@ -45,6 +45,17 @@ if TYPE_CHECKING:
     from django.db.models import OrderBy
 
 
+class CategoryQueryset(PublishedQuerySet):
+    def with_visible_products_to_user(self, user: "User"):
+        if self.user_has_access_to_all(user):
+            return self.filter(products__inull=False)
+        return self.annotate(
+            has_visible_products=Exists(Product.objects.published_with_variants())
+        ).filter(
+            has_visible_products=True
+        )
+
+
 class Category(MPTTModel, ModelWithMetadata, SeoModel):
     name = models.CharField(max_length=250)
     slug = models.SlugField(max_length=255, unique=True, allow_unicode=True)
@@ -58,7 +69,7 @@ class Category(MPTTModel, ModelWithMetadata, SeoModel):
     )
     background_image_alt = models.CharField(max_length=128, blank=True)
 
-    objects = models.Manager()
+    objects = CategoryQueryset.as_manager()
     tree = TreeManager()
     translated = TranslationProxy()
 
