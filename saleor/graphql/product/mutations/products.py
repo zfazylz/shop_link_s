@@ -71,6 +71,11 @@ class CategoryInput(graphene.InputObjectType):
     seo = SeoInput(description="Search engine optimization fields.")
     background_image = Upload(description="Background image file.")
     background_image_alt = graphene.String(description="Alt text for an image.")
+    product_types = graphene.List(
+        graphene.ID,
+        description="List of product types allowed in the category.",
+        name="product_types",
+    )
 
 
 class CategoryCreate(ModelMutation):
@@ -902,7 +907,7 @@ class ProductCreate(ModelMutation):
         publication_date = cleaned_input.get("publication_date")
         if is_published and not publication_date:
             cleaned_input["publication_date"] = datetime.date.today()
-        category = cleaned_input.get("category")
+        category = cleaned_input.get("category") or instance.category
         if not category and is_published:
             raise ValidationError(
                 {
@@ -918,6 +923,16 @@ class ProductCreate(ModelMutation):
         stocks = cleaned_input.get("stocks")
         if stocks:
             cls.check_for_duplicates_in_stocks(stocks)
+
+        if not category.get_related_product_types().filter(id=product_type.id).exists():
+            raise ValidationError(
+                {
+                    "product_type": ValidationError(
+                        "You must select a valid productType for category",
+                        code=ProductErrorCode.INVALID_PRODUCT_TYPE,
+                    )
+                }
+            )
         return cleaned_input
 
     @classmethod

@@ -15,3 +15,4 @@ class ProductErrorCode(Enum):
     REQUIRED = "required"
     UNIQUE = "unique"
     VARIANT_NO_DIGITAL_CONTENT = "variant_no_digital_content"
+    INVALID_PRODUCT_TYPE = "invalid_product_type"

@@ -857,6 +857,9 @@ class Category(CountableDjangoObjectType):
         Image, size=graphene.Int(description="Size of the image.")
     )
     translation = TranslationField(CategoryTranslation, type_name="category")
+    product_types = PrefetchingConnectionField(
+        lambda: ProductType, description="List of allowed product types to be created."
+    )
 
     class Meta:
         description = (
@@ -917,6 +920,10 @@ class Category(CountableDjangoObjectType):
     @staticmethod
     def resolve_meta(root: models.Category, _info):
         return resolve_meta(root, _info)
+
+    @staticmethod
+    def resolve_product_types(root: models.Category, info, **_kwargs):
+        return root.get_related_product_types()
 
     @staticmethod
     def __resolve_reference(root, _info, **_kwargs):

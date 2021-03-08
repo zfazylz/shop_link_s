@@ -68,6 +68,7 @@ class Category(MPTTModel, ModelWithMetadata, SeoModel):
         upload_to="category-backgrounds", blank=True, null=True
     )
     background_image_alt = models.CharField(max_length=128, blank=True)
+    product_types = models.ManyToManyField("ProductType", blank=True)
 
     objects = CategoryQueryset.as_manager()
     tree = TreeManager()
@@ -75,6 +76,16 @@ class Category(MPTTModel, ModelWithMetadata, SeoModel):
 
     def __str__(self) -> str:
         return self.name
+
+    def get_related_product_types(self):
+        category_with_product_type = self.get_ancestors(include_self=True) \
+            .filter(product_types__isnull=False) \
+            .first()
+        if category_with_product_type:
+            product_types = category_with_product_type.product_types.all()
+        else:
+            product_types = ProductType.objects.all()
+        return product_types
 
 
 class CategoryTranslation(SeoModelTranslation):
