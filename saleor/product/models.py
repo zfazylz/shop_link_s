@@ -261,7 +261,7 @@ class Product(
         ProductType, related_name="products", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=255, unique=True, allow_unicode=True)
+    slug = models.SlugField(max_length=255, allow_unicode=True)
     description = models.TextField(blank=True)
     description_json = SanitizedJSONField(
         blank=True, default=dict, sanitizer=clean_draft_js
@@ -421,7 +421,7 @@ class ProductVariant(
     SortableModel,
     ModelWithMetadata,
 ):
-    sku = models.CharField(max_length=255, unique=True)
+    sku = models.CharField(max_length=255, null=True, blank=True)
     name = models.CharField(max_length=255, blank=True)
     currency = models.CharField(
         max_length=settings.DEFAULT_CURRENCY_CODE_LENGTH,
