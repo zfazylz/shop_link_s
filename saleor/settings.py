@@ -287,6 +287,9 @@ LOGGING = {
     },
     "loggers": {
         "django": {"level": "INFO", "propagate": True},
+        "django.db.backends": {
+            "level": "DEBUG",
+        },
         "django.server": {
             "handlers": ["django.server"],
             "level": "INFO",
