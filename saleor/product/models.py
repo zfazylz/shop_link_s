@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 class CategoryQueryset(PublishedQuerySet):
     def with_visible_products_to_user(self, user: "User"):
         if self.user_has_access_to_all(user):
-            return self.filter(products__inull=False)
+            return self.filter(products__isnull=False)
         return self.annotate(
             has_visible_products=Exists(Product.objects.published_with_variants())
         ).filter(
