@@ -470,8 +470,6 @@ GRAPHENE = {
         "saleor.graphql.middleware.app_middleware",
     ],
 }
-if ENABLE_DEBUG_TOOLBAR:
-    GRAPHENE["MIDDLEWARE"].append("graphene_django.debug.DjangoDebugMiddleware")
 
 PLUGINS_MANAGER = "saleor.plugins.manager.PluginsManager"
 

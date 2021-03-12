@@ -1,6 +1,3 @@
-import graphene
-from django.conf import settings
-from graphene_django.debug import DjangoDebug
 from graphene_federation import build_schema
 
 from .account.schema import AccountMutations, AccountQueries
@@ -49,8 +46,7 @@ class Query(
     WarehouseQueries,
     WebhookQueries,
 ):
-    if settings.ENABLE_DEBUG_TOOLBAR:
-        debug = graphene.Field(DjangoDebug, name='_debug')
+    pass
 
 
 class Mutation(
