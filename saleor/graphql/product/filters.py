@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 
 import django_filters
 import graphene
-from django.db.models import F, Q, Subquery, Sum
+from django.db.models import F, Q, Subquery, Sum, Min
 from django.db.models.functions import Coalesce
 from graphene_django.filter import GlobalIDFilter, GlobalIDMultipleChoiceFilter
 
@@ -299,6 +299,11 @@ def filter_quantity(qs, quantity_value, warehouses=None):
     return qs.filter(variants__in=product_variants)
 
 
+def filter_by_lowest_level_categories(queryset):
+    lowest_level = queryset.aggregate(Min('level')).get('level__min') or 0
+    return queryset.filter(level=lowest_level)
+
+
 class ProductStockFilterInput(graphene.InputObjectType):
     warehouse_ids = graphene.List(graphene.NonNull(graphene.ID), required=False)
     quantity = graphene.Field(IntRangeInput, required=False)
@@ -383,14 +388,29 @@ class CategoryFilter(django_filters.FilterSet):
     )
     ids = GlobalIDMultipleChoiceFilter(field_name="id")
     merchant_slug = django_filters.CharFilter(method="filter_by_merchant_slug")
+    only_lowest_level = django_filters.BooleanFilter(method='filter_by_only_lowest_level')
 
     class Meta:
         model = Category
         fields = ["search"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._filter_by_lowest = None
+
     def filter_by_merchant_slug(self, queryset, _, value):
         return queryset.with_visible_products_to_user(user=self.request.user)\
             .filter(products__merchant__slug=value)
+
+    def filter_by_only_lowest_level(self, queryset, _, value):
+        self._filter_by_lowest = value
+        return queryset
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+        if self._filter_by_lowest:
+            queryset = filter_by_lowest_level_categories(queryset)
+        return queryset
 
 
 class ProductTypeFilter(django_filters.FilterSet):
