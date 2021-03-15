@@ -410,7 +410,10 @@ VERSATILEIMAGEFIELD_RENDITION_KEY_SETS = {
         ("product_list", "thumbnail__255x255"),
         ("product_list_2x", "thumbnail__510x510"),
     ],
-    "background_images": [("header_image", "thumbnail__1080x440")],
+    "background_images": [
+        ("header_image", "thumbnail__1080x440"),
+        ("carousel_image", "thumbnail__255x80"),
+    ],
     "user_avatars": [("default", "thumbnail__445x445")],
     "merchant_logos": [("icon", "thumbnail__100x100")]
 }
