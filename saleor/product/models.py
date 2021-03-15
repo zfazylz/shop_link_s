@@ -46,14 +46,8 @@ if TYPE_CHECKING:
 
 
 class CategoryQueryset(PublishedQuerySet):
-    def with_visible_products_to_user(self, user: "User"):
-        if self.user_has_access_to_all(user):
-            return self.filter(products__isnull=False)
-        return self.annotate(
-            has_visible_products=Exists(Product.objects.published_with_variants())
-        ).filter(
-            has_visible_products=True
-        )
+    def merchant_categories(self, merchant_slug: str):
+        return self.filter(merchants__merchant__slug=merchant_slug)
 
 
 class Category(MPTTModel, ModelWithMetadata, SeoModel):
@@ -86,6 +80,18 @@ class Category(MPTTModel, ModelWithMetadata, SeoModel):
         else:
             product_types = ProductType.objects.all()
         return product_types
+
+
+class MerchantVisibleCategory(models.Model):
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, db_index=True, related_name="merchants"
+    )
+    merchant = models.ForeignKey(
+        "merchant.Merchant", on_delete=models.CASCADE, db_index=True
+    )
+
+    class Meta:
+        unique_together = (("category", "merchant"),)
 
 
 class CategoryTranslation(SeoModelTranslation):

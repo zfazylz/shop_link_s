@@ -1,5 +1,7 @@
 from enum import Enum
 
+default_app_config = 'saleor.product.apps.ProductConfig'
+
 
 class ProductAvailabilityStatus(str, Enum):
     NOT_PUBLISHED = "not-published"

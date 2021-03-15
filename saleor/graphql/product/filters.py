@@ -399,8 +399,7 @@ class CategoryFilter(django_filters.FilterSet):
         self._filter_by_lowest = None
 
     def filter_by_merchant_slug(self, queryset, _, value):
-        return queryset.with_visible_products_to_user(user=self.request.user)\
-            .filter(products__merchant__slug=value)
+        return queryset.merchant_categories(value)
 
     def filter_by_only_lowest_level(self, queryset, _, value):
         self._filter_by_lowest = value
