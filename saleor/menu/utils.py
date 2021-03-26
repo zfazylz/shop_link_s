@@ -10,6 +10,9 @@ def _get_default_category_menu_slug(merchant: Merchant):
 
 
 def update_default_menu(merchant: Merchant):
+    """
+    TODO: Fix this
+    """
     menu, _ = Menu.objects.get_or_create(
         merchant=merchant,
         # TODO: restrict such slugs for merchant on create

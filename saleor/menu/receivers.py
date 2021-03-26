@@ -7,4 +7,7 @@ from saleor.product.models import Product
 
 @receiver(post_save, sender=Product)
 def update_default_menu_receiver(instance, **kwargs):
-    update_default_menu(instance.merchant)
+    """
+    Here should go something to do with menu
+    """
+    # update_default_menu(instance.merchant)
