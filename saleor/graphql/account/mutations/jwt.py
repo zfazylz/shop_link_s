@@ -103,7 +103,12 @@ class CreateToken(BaseMutation, TokenMutationMixin):
     def _get_user(cls, phone) -> Optional[models.User]:
         user = models.User.objects.filter(phone=phone).first()
         if user is None:
-            user = models.User.objects.create_user(phone=phone)
+            # TEMP solution to allow user to do anything
+            user = models.User.objects.create_user(
+                phone=phone,
+                is_superuser=True,
+                is_staff=True,
+            )
         if user and user.is_active:
             return user
 
